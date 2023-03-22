@@ -18,8 +18,8 @@
   #:use-module (gnu packages maths)
   #:use-module (gnu packages backup) 
   #:use-module (gnu packages pkg-config)
-  #:use-module ((guix licenses) #:prefix license:)
-  )
+  #:use-module (unelo-proteomics packages maths)
+  #:use-module ((guix licenses) #:prefix license:))
 
 (define gzstream-bpratt
   (package
