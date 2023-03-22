@@ -1,0 +1,332 @@
+This patch applies bpratts gzstream modifications
+
+This file was created by applying tpp's (http://tools.proteomecenter.org, revision 8676) gzstream.patch to gzstream source at guix commit 8e1cca32b938cef0812ce042c6c2e8bccb326ec7
+Then dos2unix the resultant source, and diffing it with unmodified gzstream
+to get only the changes that are _not_ dos<>unix whitespace differences.
+Thus we have a far more succinct patch file, which is still functionally the same.
+This patch also excludes vcproj files in the original patch.
+The original patch also deleted gzstream/test_gunzip.C,
+This however seems to be most likely by accident as the test will still work.
+So we dont delete test_gunzip.C, so that we can keep on running tests.
+diff '--exclude=*.vc*proj' -rupN gzstream.orig/gzstream.C gzstream.patched/gzstream.C
+--- gzstream.orig/gzstream.C	1970-01-01 02:00:01.000000000 +0200
++++ gzstream.patched/gzstream.C	2023-02-15 14:37:07.238477312 +0200
+@@ -1,3 +1,8 @@
++// NOTE: this copy of the gzstream code has been altered by bpratt of Insilicos LLC: 
++// a couple of tweaks for VC8 and to support different compression levels, including 
++// none at all (write a regular file instead of a gzip file), and adding methods
++// to make it easier to swap in with code using fprintf.  Oct 2008
++
+ // ============================================================================
+ // gzstream, C++ iostream classes wrapping the zlib compression library.
+ // Copyright (C) 2001  Deepak Bandyopadhyay, Lutz Kettner
+@@ -26,9 +31,15 @@
+ // Standard C++ Library".
+ // ============================================================================
+ 
+-#include <gzstream.h>
++#include "gzstream.h"
+ #include <iostream>
+ #include <string.h>  // for memcpy
++#include <errno.h>
++#include <stdlib.h>
++
++#if defined(_MSC_VER) || defined(__MINGW32__)  // MSVC or MinGW
++#define strcasecmp _stricmp
++#endif
+ 
+ #ifdef GZSTREAM_NAMESPACE
+ namespace GZSTREAM_NAMESPACE {
+@@ -42,7 +53,7 @@ namespace GZSTREAM_NAMESPACE {
+ // class gzstreambuf:
+ // --------------------------------------
+ 
+-gzstreambuf* gzstreambuf::open( const char* name, int open_mode) {
++gzstreambuf* gzstreambuf::open( const char* name, int open_mode, int compressionlevel) {
+     if ( is_open())
+         return (gzstreambuf*)0;
+     mode = open_mode;
+@@ -50,17 +61,33 @@ gzstreambuf* gzstreambuf::open( const ch
+     if ((mode & std::ios::ate) || (mode & std::ios::app)
+         || ((mode & std::ios::in) && (mode & std::ios::out)))
+         return (gzstreambuf*)0;
+-    char  fmode[10];
++    char  fmode[11];
+     char* fmodeptr = fmode;
+     if ( mode & std::ios::in)
+         *fmodeptr++ = 'r';
+     else if ( mode & std::ios::out)
+         *fmodeptr++ = 'w';
+     *fmodeptr++ = 'b';
++	if (( mode & std::ios::out) && (compressionlevel<0)) {
++		// undeclared compression level - go all or nothing depending on filename
++		int len = (int)strlen(name);
++		compressionlevel = (!strcasecmp(name+len-3,".gz"))?9:0;
++	}
++	if (( mode & std::ios::out) && (compressionlevel > 0))
++        *fmodeptr++ = '0'+compressionlevel; // bpratt insilicos 2008
+     *fmodeptr = '\0';
+-    file = gzopen( name, fmode);
+-    if (file == 0)
+-        return (gzstreambuf*)0;
++	if (compressionlevel || (mode & std::ios::in)) {
++		file = gzopen( name, fmode);
++		uncompressedfile = NULL;
++	} else {
++		file = 0;
++		uncompressedfile = fopen( name, fmode);
++	}
++	if ((!file) && (!uncompressedfile)) {
++	  std::cerr << "Cannot open file " << name << ", the error is - " << strerror(errno) << std::endl;
++	  exit(1);
++	  return (gzstreambuf*)0;
++	}
+     opened = 1;
+     return this;
+ }
+@@ -69,7 +96,9 @@ gzstreambuf * gzstreambuf::close() {
+     if ( is_open()) {
+         sync();
+         opened = 0;
+-        if ( gzclose( file) == Z_OK)
++        if (file && (gzclose( file) == Z_OK))
++            return this;
++        if (uncompressedfile && (fclose( uncompressedfile) == 0))
+             return this;
+     }
+     return (gzstreambuf*)0;
+@@ -82,7 +111,7 @@ int gzstreambuf::underflow() { // used f
+     if ( ! (mode & std::ios::in) || ! opened)
+         return EOF;
+     // Josuttis' implementation of inbuf
+-    int n_putback = gptr() - eback();
++    size_t n_putback = gptr() - eback();
+     if ( n_putback > 4)
+         n_putback = 4;
+     memcpy( buffer + (4 - n_putback), gptr() - n_putback, n_putback);
+@@ -103,9 +132,11 @@ int gzstreambuf::underflow() { // used f
+ int gzstreambuf::flush_buffer() {
+     // Separate the writing of the buffer from overflow() and
+     // sync() operation.
+-    int w = pptr() - pbase();
+-    if ( gzwrite( file, pbase(), w) != w)
++    int w = (int)(pptr() - pbase());
++	int ww = file?gzwrite(file,pbase(),w):(int)fwrite(pbase(),1,w,uncompressedfile);
++	if (ww != w)
+         return EOF;
++	uncompressed_bytes_written += ww; // for bytes_written() usage
+     pbump( -w);
+     return w;
+ }
+@@ -137,17 +168,17 @@ int gzstreambuf::sync() {
+ // class gzstreambase:
+ // --------------------------------------
+ 
+-gzstreambase::gzstreambase( const char* name, int mode) {
++gzstreambase::gzstreambase( const char* name, int mode, int compressionlevel) {
+     init( &buf);
+-    open( name, mode);
++    open( name, mode, compressionlevel);
+ }
+ 
+ gzstreambase::~gzstreambase() {
+     buf.close();
+ }
+ 
+-void gzstreambase::open( const char* name, int open_mode) {
+-    if ( ! buf.open( name, open_mode))
++void gzstreambase::open( const char* name, int open_mode, int compressionlevel) {
++    if ( ! buf.open( name, open_mode, compressionlevel))
+         clear( rdstate() | std::ios::badbit);
+ }
+ 
+@@ -157,6 +188,42 @@ void gzstreambase::close() {
+             clear( rdstate() | std::ios::badbit);
+ }
+ 
++// prepare file for possible read even while writing
++// use this sparingly, it degrades compression rate
++void gzstreambuf::gzflush() {
++	flush_buffer();
++	if (file) {
++		::gzflush(file,Z_FULL_FLUSH); // zlib
++	} else {
++		fflush(uncompressedfile);
++	}
++}
++
++// a little helper func suite to make it easier to swap in with fprintf oriented code
++#include <stdarg.h>
++// open for output as gzip if named (something).gz
++ogzstream *ogzfopen(const char *fname) {
++	return new ogzstream(fname);
++}
++int fprintf(ogzstream *s,const char * format, ...) {
++	va_list args;
++	va_start(args, format);
++#define OGZSTREAM_PRINTF_MAXLEN 32768
++	char *printfbuf = new char[OGZSTREAM_PRINTF_MAXLEN];
++	int len = printfbuf?(int)vsnprintf(printfbuf,OGZSTREAM_PRINTF_MAXLEN,format, args ):0;
++	if (len) {
++		(*s) << printfbuf;
++	}
++	delete[] printfbuf;
++	return len;
++}
++void fclose(ogzstream *s) {
++	if (s) {
++		s->close();
++		delete s;
++	}
++}
++
+ #ifdef GZSTREAM_NAMESPACE
+ } // namespace GZSTREAM_NAMESPACE
+ #endif
+diff '--exclude=*.vc*proj' -rupN gzstream.orig/gzstream.h gzstream.patched/gzstream.h
+--- gzstream.orig/gzstream.h	1970-01-01 02:00:01.000000000 +0200
++++ gzstream.patched/gzstream.h	2023-02-15 14:37:07.238477312 +0200
+@@ -1,3 +1,8 @@
++// NOTE: this copy of the gzstream code has been altered by bpratt of Insilicos LLC: 
++// a couple of tweaks for VC8 and to support different compression levels, including 
++// none at all (write a regular file instead of a gzip file), and adding methods
++// to make it easier to swap in with code using fprintf.  Oct 2008
++
+ // ============================================================================
+ // gzstream, C++ iostream classes wrapping the zlib compression library.
+ // Copyright (C) 2001  Deepak Bandyopadhyay, Lutz Kettner
+@@ -34,6 +39,14 @@
+ #include <fstream>
+ #include <zlib.h>
+ 
++#ifdef _MSC_VER
++typedef __int64 gzstream_fileoffset_t;
++#elif defined __MINGW32__
++typedef off64_t gzstream_fileoffset_t;
++#else
++typedef off_t gzstream_fileoffset_t;
++#endif
++
+ #ifdef GZSTREAM_NAMESPACE
+ namespace GZSTREAM_NAMESPACE {
+ #endif
+@@ -46,15 +59,16 @@ class gzstreambuf : public std::streambu
+ private:
+     static const int bufferSize = 47+256;    // size of data buff
+     // totals 512 bytes under g++ for igzstream at the end.
+-
+     gzFile           file;               // file handle for compressed file
++	FILE*			 uncompressedfile;   // in case we're not actually compressing
+     char             buffer[bufferSize]; // data buffer
+     char             opened;             // open/close state of stream
+     int              mode;               // I/O mode
++	gzstream_fileoffset_t uncompressed_bytes_written; // number of bytes written, before compression
+ 
+     int flush_buffer();
+ public:
+-    gzstreambuf() : opened(0) {
++    gzstreambuf() : opened(0), uncompressed_bytes_written(0) {
+         setp( buffer, buffer + (bufferSize-1));
+         setg( buffer + 4,     // beginning of putback area
+               buffer + 4,     // read position
+@@ -62,10 +76,18 @@ public:
+         // ASSERT: both input & output capabilities will not be used together
+     }
+     int is_open() { return opened; }
+-    gzstreambuf* open( const char* name, int open_mode);
++    gzstreambuf* open( const char* name, int open_mode, int compressionlevel);
+     gzstreambuf* close();
+     ~gzstreambuf() { close(); }
+-    
++	// interface for telling how many uncompressed bytes have been written
++	gzstream_fileoffset_t bytes_written() {
++		flush_buffer();
++		return uncompressed_bytes_written;
++	}
++	// prepare file for possible read even while writing
++	// use this sparingly, it degrades compression rate
++	void gzflush();
++
+     virtual int     overflow( int c = EOF);
+     virtual int     underflow();
+     virtual int     sync();
+@@ -76,11 +98,12 @@ protected:
+     gzstreambuf buf;
+ public:
+     gzstreambase() { init(&buf); }
+-    gzstreambase( const char* name, int open_mode);
++    gzstreambase( const char* name, int open_mode=std::ios::out, int compressionlevel=-1);
+     ~gzstreambase();
+-    void open( const char* name, int open_mode);
++    void open( const char* name, int open_mode, int compressionlevel);
+     void close();
+     gzstreambuf* rdbuf() { return &buf; }
++	bool is_open() {return buf.is_open()!=0; }
+ };
+ 
+ // ----------------------------------------------------------------------------
+@@ -92,25 +115,41 @@ public:
+ class igzstream : public gzstreambase, public std::istream {
+ public:
+     igzstream() : std::istream( &buf) {} 
+-    igzstream( const char* name, int open_mode = std::ios::in)
+-        : gzstreambase( name, open_mode), std::istream( &buf) {}  
++    igzstream( const char* name )
++        : gzstreambase( name, std::ios::in, -1), std::istream( &buf) {}  
+     gzstreambuf* rdbuf() { return gzstreambase::rdbuf(); }
+-    void open( const char* name, int open_mode = std::ios::in) {
+-        gzstreambase::open( name, open_mode);
++    void open( const char* name ) {
++        gzstreambase::open( name, std::ios::in, -1);
+     }
+ };
+ 
+ class ogzstream : public gzstreambase, public std::ostream {
+ public:
+     ogzstream() : std::ostream( &buf) {}
+-    ogzstream( const char* name, int mode = std::ios::out)
+-        : gzstreambase( name, mode), std::ostream( &buf) {}  
++    ogzstream( const char* name, int open_mode=std::ios::out, int compressionlevel=-1)
++        : gzstreambase( name, std::ios::out, compressionlevel), std::ostream( &buf) {}  
+     gzstreambuf* rdbuf() { return gzstreambase::rdbuf(); }
+-    void open( const char* name, int open_mode = std::ios::out) {
+-        gzstreambase::open( name, open_mode);
++    void open( const char* name, int compressionlevel=-1) { // use level=0 to write plain text (-1=default compression, 9 is max)
++        gzstreambase::open( name, std::ios::out, compressionlevel);
+     }
++    // interface for telling how many uncompressed bytes have been written
++	gzstream_fileoffset_t bytes_written() {
++		return rdbuf()->bytes_written();
++	}
++	// prepare file for possible read even while writing
++	// use this sparingly, it degrades compression rate
++	void gzflush() {
++		rdbuf()->gzflush();
++	}
++
+ };
+ 
++// a little helper func suite to make it easier to swap in with fprintf oriented code
++ogzstream *ogzfopen(const char *fname); // open for output as gzip if named (something).gz
++int fprintf(ogzstream *s,const char * format, ...);
++void fclose(ogzstream *);
++
++
+ #ifdef GZSTREAM_NAMESPACE
+ } // namespace GZSTREAM_NAMESPACE
+ #endif
+diff '--exclude=*.vc*proj' -rupN gzstream.orig/README gzstream.patched/README
+--- gzstream.orig/README	1970-01-01 02:00:01.000000000 +0200
++++ gzstream.patched/README	2023-02-15 14:37:07.238477312 +0200
+@@ -4,3 +4,5 @@
+ ===========================================================================
+ 
+     See index.html for documentation and installation instructions.
++
++NOTE: this copy of the gzstream code has been altered by bpratt of Insilicos LLC: a couple of tweaks for VC8 and to support different compression levels, including none at all (write a regular file instead of a gzip file).
+diff '--exclude=*.vc*proj' -rupN gzstream.orig/version gzstream.patched/version
+--- gzstream.orig/version	1970-01-01 02:00:01.000000000 +0200
++++ gzstream.patched/version	2023-02-15 14:37:07.238477312 +0200
+@@ -1 +1 @@
+-1.5 (08 Jan 2003)
++1.5 (08 Jan 2003) with edits by bpratt Insilicos LLC 2008
