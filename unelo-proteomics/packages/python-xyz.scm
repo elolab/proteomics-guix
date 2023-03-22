@@ -16,7 +16,7 @@
 
 
 
-(define python-autowrap
+(define-public python-autowrap
   (package
     (name "python-autowrap")
     (version "0.22.11")

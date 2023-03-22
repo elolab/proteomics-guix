@@ -16,6 +16,8 @@
   #:use-module (gnu packages algebra)
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-build)
+  #:use-module (gnu packages python-xyz)
+  #:use-module (gnu packages python-science)
   #:use-module (gnu packages check)
   #:use-module (unelo-proteomics packages maths)
   #:use-module (gnu packages machine-learning)
@@ -110,7 +112,6 @@
 	libtool
 	pkg-config))
       (license license:bsd-3)
-      (home-page "https://github.com/OpenMS/OpenMS.git")
       (synopsis "C++ library for LC-MS data management and analyses.")
       (description "OpenMS is a C++ library for LC-MS data management and analyses. It offers an
 infrastructure for rapid development of mass spectrometry related software. OpenMS is free software
