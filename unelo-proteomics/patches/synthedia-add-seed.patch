@@ -1,0 +1,32 @@
+Add a --seed argument that allows reproducing RNG behavior
+
+diff --git a/synthedia/__main__.py b/synthedia/__main__.py
+index b34a685..1cfa771 100644
+--- a/synthedia/__main__.py
++++ b/synthedia/__main__.py
+@@ -130,7 +130,9 @@ def main(args = None):
+                         help = 'Probability (0-100) that a peptide is missing in an entire group')
+     simulation_args.add_argument( '--no_isotopes', action= 'store_true',
+                         help = 'Disable simulation of non-monoisotopic ions. Can be used to increase simulation speed when optimising parameters.')
+-
++    simulation_args.add_argument('--seed', required = False, type = int, default=0,
++                                 help = "Seed to use in for numpy.random and  python's random module.")
++    
+     plotting_args = parser.add_argument_group("Plotting")
+     plotting_args.add_argument( '--tic', action = 'store_true',
+                         help = 'Plot TIC for the generated mzML file.')
+diff --git a/synthedia/assembly.py b/synthedia/assembly.py
+index 743f6b2..52dc74f 100644
+--- a/synthedia/assembly.py
++++ b/synthedia/assembly.py
+@@ -418,6 +418,10 @@ def assemble(options):
+         logger.error(msg)
+         logger.error('Exiting')
+         raise IncorrectInputError(msg)
++    if options.seed:
++        logger.info('Setting seed to %s' % options.seed)
++        random.seed(options.seed)
++        np.random.seed(options.seed)
+ 
+     logger.info('Calculating peak parameters')
+     options = get_extra_parameters(options)
