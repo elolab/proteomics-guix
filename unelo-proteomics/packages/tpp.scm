@@ -1,4 +1,4 @@
-(define-module (unelo-guix packages tpp)
+(define-module (unelo-proteomics packages tpp)
   #:use-module (guix packages)
   #:use-module (ice-9 string-fun)
   #:use-module (guix download)
