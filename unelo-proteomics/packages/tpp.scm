@@ -30,7 +30,7 @@
     (description "This variant of gzstream includes bpratt of Insilicos LLC mdoificiations, which allow one to specifiy the compression levels")
     (source (origin
 	      (inherit (package-source gzstream))
-	      (patches (search-patches "unelo-guix/patches/gzstream-bpratt.patch"))))))
+	      (patches (search-patches "unelo-proteomics/patches/gzstream-bpratt.patch"))))))
   
 
 ;; for an idea on how to handle the patches that tpp bundles
