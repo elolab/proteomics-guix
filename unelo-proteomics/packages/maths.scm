@@ -30,7 +30,6 @@
      (list openblas))
     (synopsis "Collection of coin-org projects")
     (description synopsis)
-    (description name)
     (license license:epl1.0)))
 
 (define gsl-1.16
