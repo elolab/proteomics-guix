@@ -14,6 +14,8 @@
   #:use-module (gnu packages bioinformatics)
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages statistics)
+  #:use-module (gnu packages xml)
+  #:use-module (gnu packages graph)
   #:use-module ((guix licenses) #:prefix license:)
   )
 
