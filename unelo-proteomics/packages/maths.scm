@@ -1,4 +1,4 @@
-(define-module (unelo-proteomics maths)
+(define-module (unelo-proteomics packages maths)
   #:use-module (guix packages)
   #:use-module (guix download)
   #:use-module (guix utils)
