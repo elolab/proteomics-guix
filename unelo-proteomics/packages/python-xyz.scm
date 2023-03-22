@@ -85,7 +85,7 @@ such as calculation of basic physico-chemical properties of polypeptides, and ac
   (propagated-inputs `(("python-matplotlib" ,python-matplotlib)
                       ("python-numpy" ,python-numpy)
                       ("python-pandas" ,python-pandas)
-                      ("python-pyopenms" ,python-pyopenms "python")
+                      ("openms" ,openms "python")
                       ("python-pyteomics" ,python-pyteomics)
                       ("python-pyyaml" ,python-pyyaml)
                       ("python-scipy" ,python-scipy)))
