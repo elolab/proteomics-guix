@@ -6,6 +6,7 @@
   #:use-module (gnu packages gd)
   #:use-module (guix utils)
   #:use-module (guix build-system gnu)
+  #:use-module (gnu packages)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages boost)
   #:use-module (gnu packages machine-learning)
