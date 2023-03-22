@@ -32,7 +32,7 @@
     (description synopsis)
     (license license:epl1.0)))
 
-(define gsl-1.16
+(define-public gsl-1.16
   (package
     (name "gsl")
     (version "1.16")
