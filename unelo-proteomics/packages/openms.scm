@@ -126,8 +126,8 @@ TMT, SRM, SWATH, etc."))))
     ;; and gemmi for packages that also have a python output
     (arguments
      (append
-      (list #
-       :imported-modules
+      (list
+       #:imported-modules
        (append %cmake-build-system-modules
                '((guix build
                        python-build-system)))
