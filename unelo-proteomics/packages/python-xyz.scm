@@ -102,7 +102,7 @@ such as calculation of basic physico-chemical properties of polypeptides, and ac
     (source (origin
 	      (inherit
 	       (package-source python-synthedia))
-	      (patches (search-paches "unelo-proteomics/patches/synthedia-add-seed.patch"))))))
+	      (patches (search-patches "unelo-proteomics/patches/synthedia-add-seed.patch"))))))
 (define-public python-pymzml
   (package
     (name "python-pymzml")
