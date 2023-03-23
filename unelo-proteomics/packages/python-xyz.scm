@@ -1,4 +1,5 @@
 (define-module (unelo-proteomics packages python-xyz)
+  #:use-module (gnu packages)
   #:use-module (guix packages)
   #:use-module (guix gexp)
   #:use-module (guix utils)
@@ -16,8 +17,7 @@
   #:use-module (gnu packages statistics)
   #:use-module (gnu packages xml)
   #:use-module (gnu packages graph)
-  #:use-module ((guix licenses) #:prefix license:)
-  )
+  #:use-module ((guix licenses) #:prefix license:))
 
 
 
@@ -62,10 +62,10 @@
     ;; - `pandas <http://pandas.pydata.org/>`_ (can be used with :py:mod:`pyteomics.pepxml`,
     ;;   :py:mod:`pyteomics.tandem`, :py:mod:`pyteomics.mzid`, :py:mod:`pyteomics.auxiliary`)
     ;; - `sqlalchemy <http://www.sqlalchemy.org/>`_ (used by :py:mod:`pyteomics.mass.unimod`)
-    ;; - `pynumpress <https://pypi.org/project/pynumpress/>`_ (adds support for Numpress compression)   
+    ;; - `pynumpress <https://pypi.org/project/pynumpress/>`_ (adds support for Numpress compression)
   (build-system python-build-system)
   (home-page "https://github.com/levitsky/pyteomics")
-  (synopsis "A framework for proteomics data analysis.")
+  (synopsis "Framework for proteomics data analysis")
   (description
    "This package provides a framework for proteomics data analysis,
 such as calculation of basic physico-chemical properties of polypeptides, and acces to common proteomics data:")
@@ -204,7 +204,7 @@ such as calculation of basic physico-chemical properties of polypeptides, and ac
     (build-system python-build-system)
     (native-inputs (list python-cython))
     (home-page "https://github.com/ms-numpress")
-    (synopsis "Python bindings to Implementations of two compression schemes for numeric data from mass spectrometers.")
+    (synopsis "Python bindings for two compression schemes for numeric data from mass spectrometers")
     (description "Implementations of two compression schemes for numeric data from mass spectrometers.")
     (license license:bsd-3)))
 
@@ -219,8 +219,7 @@ such as calculation of basic physico-chemical properties of polypeptides, and ac
                (base32
                 "13icrhbn4bkrg7gl0hs56jic8z8770cc1p6l9jhallpqv2h6xhcf"))))
     (arguments
-     `(#:tests? #t
-       #:phases
+     `(#:phases
        (modify-phases %standard-phases
 	 (add-after 'unpack 'fix-print-statement
 	   (lambda _
