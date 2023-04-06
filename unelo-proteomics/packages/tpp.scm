@@ -31,10 +31,12 @@
   #:use-module (gnu packages compression)
   #:use-module (gnu packages xml)
   #:use-module (gnu packages perl)
+  #:use-module (gnu packages web)
   #:use-module (gnu packages maths)
   #:use-module (gnu packages backup)
   #:use-module (gnu packages pkg-config)
   #:use-module (unelo-proteomics packages maths)
+  #:use-module (unelo-proteomics packages perl-maths)
   #:use-module ((guix licenses)
                 #:prefix license:))
 
@@ -58,6 +60,10 @@
 ;; 6.1.0 <-> r8676
 ;;  	[r8676] Tagging final 6.1.0 release 
 
+;; see also http://tools.proteomecenter.org/wiki/index.php?title=TPP_6.2.0:_Installing_on_Ubuntu_22.04_LTS
+;; for perl stuff compare `prinseq' from (gnu packages bioinformatics)
+;; and clyrics from (gnu packages music)
+;; moreutils
 (define tpp-6.1.0-source
   (let ((name "tpp")
         (version "6.1.0"))
@@ -147,12 +153,20 @@ validation, quantitation, visualization, and conversion of proteomics data.")
                     gzstream-bpratt
                     libarchive
                     ;; pwiz                             ;
+		    ;; perl deps
+		    perl-cgi ;; is this needed if we dont use a webserver?
+		    perl-xml-parser
+		    perl-xml-twig
+		    perl-tie-ixhash
+		    perl-statistics-regression
+		    perl-statistics-r
                     ))
       (native-inputs (list unzip))
       (source tpp-6.1.0-source)
       (build-system gnu-build-system)
       (arguments
        (list
+	#:parallel-build? #f ;; the makefile is not written in a way that allows parallel buids
         #:make-flags
         #~(cons*
            (format #f "TARGET=~a"
@@ -224,6 +238,16 @@ $(BUILD_WWW)/:
             (replace 'build
               (lambda* (#:key make-flags #:allow-other-keys)
                 (apply invoke "make" "all" #$extern-all-build make-flags)))
+
+	    (add-after 'install 'wrap-program
+              (lambda _
+                (for-each
+                 (lambda (script)
+                   (wrap-program script
+                     `("PERL5LIB" ":" prefix (,(getenv "PERL5LIB")))))
+		 (append
+		  (find-files (string-append #$output "/cgi-bin"))
+                  (find-files (string-append #$output "/bin"))))))
             (replace 'install
               (lambda* (#:key make-flags #:allow-other-keys)
                 (apply invoke "make" "install" #$extern-all-build make-flags)))
