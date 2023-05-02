@@ -10,6 +10,44 @@
   #:use-module (gnu packages bioconductor)
   #:use-module (gnu packages bioinformatics))
 
+(define-public r-r-filesets
+  (package
+    (name "r-r-filesets")
+    (version "2.15.0")
+    (source (origin
+              (method url-fetch)
+              (uri (cran-uri "R.filesets" version))
+              (sha256
+               (base32
+                "14dngx6ffhfvlaixpvlq890nwgil6zyaw8wy3dlcrv001wynzmms"))))
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         (add-before 'install 'change-home-dir
+           (lambda _
+             ;; Change from /homeless-shelter to /tmp for write permission.
+             (setenv "HOME" "/tmp"))))))
+    (native-inputs (list r-r-cache))
+    (properties `((upstream-name . "R.filesets")))
+    (build-system r-build-system)
+    (propagated-inputs (list r-digest r-r-cache r-r-methodss3 r-r-oo r-r-utils))
+    (home-page "https://github.com/HenrikBengtsson/R.filesets")
+    (synopsis
+     "Easy Handling of and Access to Files Organized in Structured Directories")
+    (description
+     "This package provides a file set refers to a set of files located in one or more
+directories on the file system.  This package provides classes and methods to
+locate, setup, subset, navigate and iterate such sets.  The API is designed such
+that these classes can be extended via inheritance to provide a richer API for
+special file formats.  Moreover, a specific name format is defined such that
+filenames and directories can be considered to have full names which consists of
+a name followed by comma-separated tags.  This adds additional flexibility to
+identify file sets and individual files.  NOTE: This package's API should be
+considered to be in an beta stage.  Its main purpose is currently to support the
+aroma.* packages, where it is one of the main core components; if you decide to
+build on top of this package, please contact the author first.")
+    (license license:lgpl2.1+)))
+
 
 (define-public r-aroma-apd
   (package
@@ -130,7 +168,8 @@ been used since 2006.")
                                r-genefilter
                                r-limma
                                r-preprocesscore
-                               r-rots))
+                               r-rots
+			       r-r-filesets))
       (home-page "https://git.bioconductor.org/packages/PECA")
       (synopsis "Probe-level Expression Change Averaging")
       (description
