@@ -87,6 +87,13 @@ not be used elsewhere.)")
               (sha256
                (base32
                 "12118xdb74c4b2ca5dq57zxkrrcjjji10b5a1qxpixkrc36bfskv"))))
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         (add-before 'install 'change-home-dir
+           (lambda _
+             ;; Change from /homeless-shelter to /tmp for write permission.
+             (setenv "HOME" "/tmp"))))))
     (properties `((upstream-name . "aroma.core")))
     (build-system r-build-system)
     (propagated-inputs (list r-biocmanager
@@ -120,6 +127,13 @@ Project, e.g. aroma.affymetrix and aroma.cn'.")
               (sha256
                (base32
                 "1yzmqh7f3x5mzws7azxa6rgqv8kcm861y9pc5ppc0vsgz7fvpvvs"))))
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         (add-before 'install 'change-home-dir
+           (lambda _
+             ;; Change from /homeless-shelter to /tmp for write permission.
+             (setenv "HOME" "/tmp"))))))
     (properties `((upstream-name . "aroma.affymetrix")))
     (build-system r-build-system)
     (propagated-inputs (list r-aroma-apd
@@ -160,6 +174,13 @@ been used since 2006.")
                 (sha256
                  (base32
                   "1sfdjmlqqiil3d5a9imkl3qb596ljmmjvgfdrpg351y79aarxdvm"))))
+      (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         (add-before 'install 'change-home-dir
+           (lambda _
+             ;; Change from /homeless-shelter to /tmp for write permission.
+             (setenv "HOME" "/tmp"))))))
       (properties `((upstream-name . "PECA")))
       (build-system r-build-system)
       (propagated-inputs (list r-affy
