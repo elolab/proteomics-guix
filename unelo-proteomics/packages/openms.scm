@@ -71,6 +71,7 @@
                 (method git-fetch)
                 (patches (search-patches
                           "unelo-proteomics/patches/openms-tests.patch"))
+		(file-name (git-file-name "openms" version))
                 (uri (git-reference
                       (url home-page)
                       (commit commit)))
