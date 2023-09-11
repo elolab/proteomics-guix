@@ -1,0 +1,63 @@
+diff --git a/mstoolkit/include/MSReader.h b/mstoolkit/include/MSReader.h
+index 1e9a56a..a3aa457 100644
+--- a/mstoolkit/include/MSReader.h
++++ b/mstoolkit/include/MSReader.h
+@@ -16,7 +16,7 @@ limitations under the License.
+ 
+ // THIS FILE HAS BEEN MODIFIED BY VADIM DEMICHEV
+ 
+-#define _NOSQLITE
++//#define _NOSQLITE
+ //#define _NO_THERMORAW
+ 
+ #ifndef _MSREADER_H
+diff --git a/src/diann.cpp b/src/diann.cpp
+index d14d7ce..a311f42 100644
+--- a/src/diann.cpp
++++ b/src/diann.cpp
+@@ -2549,12 +2549,12 @@ struct Feature {
+ 			auto pos = std::lower_bound(frm.begin(), frm.end(), query);
+ 			if (pos == frm.end()) continue;
+ 			while (pos->mz < high) {
+-				if (open && iter == 1 && pos->charge != 1) goto finish;
++			  if (!(open && iter == 1 && pos->charge != 1)){
+ 				auto &pr = precursors[pos->pr];
+ 				if ((open || (pr.first > min && pr.first < max)) && pr.second == charge) {
+ 					if (size <= pos->pr) size = ((pos->pr * 5) / 4) + 1, temp.resize(size);
+ 					auto &match = temp[pos->pr].hit;
+-					if (p.score <= match[SCSFr - 1].score) goto finish;
++					if(!(p.score <= match[SCSFr - 1].score)){
+ 					int fr, j; if (open) fr = pos->index;
+ 
+ 					for (i = 0; i < SCSFr - 1; i++) {
+@@ -2578,8 +2578,7 @@ struct Feature {
+ 						}
+ 						match[j].score = p.score;
+ 						if (open) match[j].fr = fr;
+-					}
+-				}
++					}}}}
+ 			finish:
+ 				pos++;
+ 				if (pos == frm.end()) break;
+@@ -5392,9 +5391,8 @@ public:
+ 
+ 			int tot_pr = 0; for (i = 0; i < prs_n; i++) if (prn[i]) tot_pr++;
+ 			if (tot_pr < 2) {
+-				for (i = 0; i < n_s; i++) quantities[i] = reference[i];
+-				goto save;
+-			}
++			  for (i = 0; i < n_s; i++) quantities[i] = reference[i];
++			} else {
+ 
+ 			int ni = indices.size();
+ 			B.resize(ni); A.resize(ni, ni);
+@@ -5438,7 +5436,7 @@ public:
+ 				for (i = 0; i < n_s; i++) quantities[i] = -INF;
+ 				for (i = 0; i < ni; i++) quantities[indices[i]] = X[i];
+ 				A.resize(0, 0);
+-			}
++			}}
+ 
+ 			save:
+ 			for (i = 0; i < prs_n; i++) {
