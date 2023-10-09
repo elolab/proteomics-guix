@@ -27,6 +27,7 @@
   (package
     (name "perl-statistics-regression")
     (version "0.15")
+    ;; guix import cpan couldnt infer where to place the version string
     (source (origin
               (method url-fetch)
               (uri "mirror://cpan/authors/id/I/IA/IAWELCH/Statistics-Regression-0.53.tar.gz")
@@ -38,6 +39,7 @@
     (home-page "https://metacpan.org/release/Statistics-Regression")
     (synopsis "weighted linear regression package (line+plane fitting)")
     (description synopsis)
+    ;; the page says gpl but doesnt say which
     (license license:gpl3+)))
 
 (define-public perl-statistics-r
@@ -63,4 +65,27 @@
     (license license:perl-license)))
 
 
+(define-public perl-statistics-kernelestimation
+  (package
+    (name "perl-statistics-kernelestimation")
+    (version "0.05")
+    (source (origin
+              (method url-fetch)
+              (uri (string-append
+                    "mirror://cpan/authors/id/J/JA/JANERT/Statistics-KernelEstimation-"
+                    version ".tar.gz"))
+              (sha256
+               (base32
+		"10pabjspdrs6s7wfl56bn70bq0961fr31a6q6cfs9ixmbkab31pm"))))
+    (build-system perl-build-system)
+    (home-page "https://metacpan.org/release/Statistics-KernelEstimation")
+    (synopsis "Kernel Density Estimates and Histograms")
+    (description synopsis)
+    (license license:perl-license)))
+
+
+;; DIA-MS2PEP
+
+    
+perl-statistics-kernelestimation
 
