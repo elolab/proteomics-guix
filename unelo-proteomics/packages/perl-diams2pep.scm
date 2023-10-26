@@ -19,6 +19,7 @@
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix packages)
   #:use-module (guix download)
+  #:use-module (gnu packages perl)
   #:use-module (guix gexp)
   #:use-module (guix git-download)
   #:use-module (unelo-proteomics packages perl-maths)
@@ -52,22 +53,31 @@
     (build-system perl-build-system)
     (arguments
      (list
-      ;;#:modules '((guix build utils))
       #:phases
-	
       #~(modify-phases %standard-phases
 	  (delete 'configure)
 	  (delete 'build)
 	  (replace 'install
 	    (lambda _
 	      (for-each (lambda (x) (install-file x (string-append #$output "/bin/")))
-			(find-files "Scripts" ".pl$"))))
+			(find-files "Scripts" ".pl$"))
+	      (for-each (lambda (x) (install-file x (string-append #$output "/lib/"
+								   "/perl5/site_perl/"
+								   #$(package-version
+								      perl)
+								   "/")))
+			(find-files "Scripts" ".pm"))))
 	  (add-after 'install 'wrap-program
               (lambda _
                 (for-each
                  (lambda (script)
                    (wrap-program script
-                     `("PERL5LIB" ":" prefix (,(getenv "PERL5LIB")))))
+                     `("PERL5LIB" ":" prefix (,
+					      (string-append (getenv "PERL5LIB")
+							     ":"
+							     (string-append #$output "/lib/"
+								   "/perl5/site_perl/"
+								   ))))))
 		 (append
 		  (find-files (string-append #$output "/cgi-bin"))
                   (find-files (string-append #$output "/bin")))))))
