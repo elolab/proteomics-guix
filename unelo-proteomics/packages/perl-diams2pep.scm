@@ -59,7 +59,9 @@
 	  (delete 'build)
 	  (replace 'install
 	    (lambda _
-	      (for-each (lambda (x) (install-file x (string-append #$output "/bin/")))
+	      (for-each (lambda (x)
+			  (chmod x #o755)
+			  (install-file x (string-append #$output "/bin/")))
 			(find-files "Scripts" ".pl$"))
 	      (for-each (lambda (x) (install-file x (string-append #$output "/lib/"
 								   "/perl5/site_perl/"
