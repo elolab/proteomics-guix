@@ -28,7 +28,7 @@
 (define-public perl-diams2pep
   (let ((commit "609af80891041329060879d1239a24f1f19396a4")
 	(version "0.0.1")
-	(revision "1"))
+	(revision "2"))
     
   (package
     (name "perl-diams2pep")
@@ -49,7 +49,11 @@
 	 "03xx1dagfscys14a52zs03ma6d4zafsdza2fmf23mc7gqcslh7f7"))))
     (synopsis name)
     (description name)
-    (inputs (list perl-statistics-kernelestimation))
+    ;; these can either be in propogated inputes or in just 'inputs'
+    ;; because PERL5LIB has a reference to the store items.
+    (inputs
+      (list perl-statistics-kernelestimation
+		  perl-parallel-forkmanager))
     (build-system perl-build-system)
     (arguments
      (list
