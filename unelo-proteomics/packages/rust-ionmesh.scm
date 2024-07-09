@@ -69,15 +69,17 @@ A sensible value for PREFIX is (string-append PKG-NAME \"-\" VERSION)"
 			  
 			  (list "@" "%" "/" "&" ":")))))
       (mlet %store-monad ((drv
-			  (git-fetch ref
+			   (apply
+			    git-fetch ref
 				     hash-algo
 				     hash
 				     (string-append "git-"
-						   (basename file-name ".tar.gz"))
-				     #:system system
-				     #:guile guile
-				     #:git git))
-			 #;(guile (package->derivation guile system)))
+						    (basename file-name ".tar.gz"))
+				     `(
+				       ,@(if system `( #:system ,system) '())
+				       ,@(if guile `( #:guile ,guile) '())
+				       ,@(if git  `( #:git ,git) '()))))
+			  #;(guile (package->derivation guile system)))
        (gexp->derivation file-name
 			 (with-imported-modules '((guix build utils))
 						  
