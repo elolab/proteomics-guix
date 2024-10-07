@@ -13,7 +13,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(define-module (unelo-proteomics packages openms)
+(define-module (proteomics-guix packages openms)
   #:use-module (guix packages)
   #:use-module (guix gexp)
   #:use-module (gnu packages)
@@ -34,9 +34,9 @@
   #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages check)
-  #:use-module (unelo-proteomics packages maths)
+  #:use-module (proteomics-guix packages maths)
   #:use-module (gnu packages machine-learning)
-  #:use-module (unelo-proteomics packages python-xyz)
+  #:use-module (proteomics-guix packages python-xyz)
   #:use-module (guix git-download)
   #:use-module (guix utils)
   #:use-module ((guix licenses)
@@ -70,7 +70,7 @@
       (source (origin
                 (method git-fetch)
                 (patches (search-patches
-                          "unelo-proteomics/patches/openms-tests.patch"))
+                          "proteomics-guix/patches/openms-tests.patch"))
 		(file-name (git-file-name "openms" version))
                 (uri (git-reference
                       (url home-page)

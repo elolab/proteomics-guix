@@ -1,3 +1,3 @@
-* unelo-proteomics
+* proteomics-guix
 This channel packages packages free software for working with proteomics,
 we hope to add these definitions to mainline guix if possible, and otherwise to =guix-science=.

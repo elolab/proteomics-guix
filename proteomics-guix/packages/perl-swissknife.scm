@@ -1,4 +1,4 @@
-(define-module (unelo-proteomics packages perl-swissknife)
+(define-module (proteomics-guix packages perl-swissknife)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix packages)
   #:use-module (guix download)

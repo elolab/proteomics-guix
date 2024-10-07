@@ -1,4 +1,4 @@
-(define-module (unelo-proteomics packages bioinformatics)
+(define-module (proteomics-guix packages bioinformatics)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix packages)
   #:use-module (guix download)

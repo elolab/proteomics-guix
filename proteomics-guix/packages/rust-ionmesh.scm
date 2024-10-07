@@ -15,7 +15,7 @@
 ;; Most of this was generated with cargo2guix, so sorry about the low quality code.
 
 (define-module
-  (unelo-proteomics packages rust-ionmesh)
+  (proteomics-guix packages rust-ionmesh)
   #:use-module
   ((guix licenses) #:prefix license:)
   #:use-module

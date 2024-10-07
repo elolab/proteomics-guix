@@ -15,14 +15,14 @@
 
 
 ;; should be in `(gnu packages bioinformatics)' upstream
-(define-module (unelo-proteomics packages perl-diams2pep)
+(define-module (proteomics-guix packages perl-diams2pep)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix packages)
   #:use-module (guix download)
   #:use-module (gnu packages perl)
   #:use-module (guix gexp)
   #:use-module (guix git-download)
-  #:use-module (unelo-proteomics packages perl-maths)
+  #:use-module (proteomics-guix packages perl-maths)
   #:use-module (guix build-system perl))
 
 (define-public perl-diams2pep

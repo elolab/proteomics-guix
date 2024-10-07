@@ -1,4 +1,4 @@
-(define-module (unelo-proteomics packages diann)
+(define-module (proteomics-guix packages diann)
   #:use-module (guix gexp)
   #:use-module (guix packages)
   #:use-module (guix download)
@@ -43,7 +43,7 @@
 
 
        (patches (search-patches
-		 "unelo-proteomics/patches/diann-goto-fixes.patch"))))
+		 "proteomics-guix/patches/diann-goto-fixes.patch"))))
     (build-system gnu-build-system)
     (arguments
      (list

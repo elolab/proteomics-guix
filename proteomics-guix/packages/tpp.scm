@@ -13,7 +13,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(define-module (unelo-proteomics packages tpp)
+(define-module (proteomics-guix packages tpp)
   #:use-module (guix packages)
   #:use-module (ice-9 string-fun)
   #:use-module (guix download)
@@ -35,8 +35,8 @@
   #:use-module (gnu packages maths)
   #:use-module (gnu packages backup)
   #:use-module (gnu packages pkg-config)
-  #:use-module (unelo-proteomics packages maths)
-  #:use-module (unelo-proteomics packages perl-maths)
+  #:use-module (proteomics-guix packages maths)
+  #:use-module (proteomics-guix packages perl-maths)
   #:use-module ((guix licenses)
                 #:prefix license:))
 
@@ -50,7 +50,7 @@
     (source (origin
               (inherit (package-source gzstream))
               (patches (search-patches
-                        "unelo-proteomics/patches/gzstream-bpratt.patch"))))))
+                        "proteomics-guix/patches/gzstream-bpratt.patch"))))))
 
 ;; for an idea on how to handle the patches that tpp bundles
 ;; check out jami-apply-custom-patches in the module

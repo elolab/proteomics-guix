@@ -13,12 +13,12 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(define-module (unelo-proteomics packages python-xyz)
+(define-module (proteomics-guix packages python-xyz)
   #:use-module (gnu packages)
   #:use-module (guix packages)
   #:use-module (guix gexp)
   #:use-module (guix utils)
-  #:use-module (unelo-proteomics packages openms)
+  #:use-module (proteomics-guix packages openms)
   #:use-module (guix build-system cmake)
   #:use-module (guix build-system python)
   #:use-module (gnu packages python)
@@ -115,7 +115,7 @@ such as calculation of basic physico-chemical properties of polypeptides, and ac
     (source (origin
               (inherit (package-source python-synthedia))
               (patches (search-patches
-                        "unelo-proteomics/patches/synthedia-add-seed.patch"))))))
+                        "proteomics-guix/patches/synthedia-add-seed.patch"))))))
 (define-public python-pymzml
   (package
     (name "python-pymzml")

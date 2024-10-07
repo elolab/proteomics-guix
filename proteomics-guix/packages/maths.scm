@@ -13,7 +13,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(define-module (unelo-proteomics packages maths)
+(define-module (proteomics-guix packages maths)
   #:use-module (guix packages)
   #:use-module (guix download)
   #:use-module (guix utils)
