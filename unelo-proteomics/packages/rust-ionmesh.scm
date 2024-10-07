@@ -7224,9 +7224,7 @@ A sensible value for PREFIX is (string-append PKG-NAME \"-\" VERSION)"
       (snippet '(begin
 		 (substitute*
 		     "Cargo.toml"
-		   (("^sage-core = .*$") "sage-core = \"0.14.7\"\n"))))
-		   
-		     
+		   (("^sage-core = .*$") "sage-core = \"0.14.7\"\n"))))  
       (sha256
         (base32 "08l4v8m3h921dd0kh4lrfzp9z7b2vsjhm7yksyy9jk42y1bi6cbk"))))
 
@@ -13525,7 +13523,7 @@ A sensible value for PREFIX is (string-append PKG-NAME \"-\" VERSION)"
     (source
      (origin
        ;;(or git-fetch )
-       (method (git-fetch-and-targz-factory "crates/sage" (string-append "sage-core" "-" version) "sagkwqre.tar.gz"))
+       (method (git-fetch-and-targz-factory "crates/sage" (string-append "sage-core" "-" version) (string-append name ".tar.gz")))
        (uri (git-reference
              (url "https://github.com/lazear/sage.git")
              (commit "9e870429889b341c4773df32b65e553283301a93")))
